@@ -11,9 +11,12 @@ llm = ChatOpenAI(model="gpt-4.1-nano", temperature=0)
 
 # 데이터 로드 함수
 def load_champion_data(file_path):
-    """JSON 파일에서 챔피언 데이터를 로드합니다."""
+    """JSONL 파일에서 챔피언 데이터를 로드합니다."""
+    data = []
     with open(file_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+        for line in f:
+            data.append(json.loads(line))
+    return data
 
 def format_hard_counters(counters):
     """하드 카운터 목록의 형식을 지정합니다."""
@@ -34,9 +37,9 @@ def main():
 
     # 2. 데이터 로드
     try:
-        champion_data_store = load_champion_data('top.json')
+        champion_data_store = load_champion_data('top.jsonl')
     except (FileNotFoundError, json.JSONDecodeError) as e:
-        print(f"오류: 'top.json' 파일을 읽을 수 없습니다. ({e})")
+        print(f"오류: 'top.jsonl' 파일을 읽을 수 없습니다. ({e})")
         return
 
     # 3. 데이터 조회
