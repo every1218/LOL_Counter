@@ -54,10 +54,10 @@ def main():
     st.title("👑 LOL 챔피언 카운터 챗봇 👑")
 
     # 데이터 로드 (딕셔너리)
-    champion_data_store = load_champion_data('top.jsonl')
+    champion_data_store = load_champion_data('champ.jsonl')
 
     if not champion_data_store:
-        st.warning("챔피언 데이터가 없습니다. 'top.jsonl' 파일을 확인해주세요.")
+        st.warning("챔피언 데이터가 없습니다. 'champ.jsonl' 파일을 확인해주세요.")
         return
 
     # ⭐️ 1. st.form 생성
