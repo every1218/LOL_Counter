@@ -1,0 +1,14 @@
+[theme]
+#base="white"
+
+# 주요 색상 (포인트)
+#primaryColor="#00C4FF"  # 밝은 형광 하늘색
+
+# 메인 배경화면 색상
+#backgroundColor="#111827" # 짙은 회색 (Slate 900)
+
+# 위젯 배경 색상
+#secondaryBackgroundColor="#1F2937" # 살짝 밝은 회색 (Slate 800)
+
+# 기본 텍스트 색상
+#textColor="#FAFAFA" # 밝은 흰색

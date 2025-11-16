@@ -4,8 +4,6 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from dotenv import load_dotenv
-
-# .env 파일에서 환경 변수 로드
 load_dotenv()
 
 # LLM 초기화
@@ -19,23 +17,37 @@ except Exception as e:
 # ⭐️ 딕셔너리로 로드하도록 수정 (빠른 검색을 위해)
 @st.cache_data
 def load_champion_data(file_path):
-    """JSONL 파일에서 챔피언 데이터를 딕셔너리로 로드하고 인덱싱합니다."""
-    champion_dict = {}
+    """JSONL 파일에서 챔피언 데이터를 딕셔너리로 로드하고, 별칭(aliases)까지 인덱싱합니다."""
     try:
+        # 1. 파일에서 모든 데이터를 먼저 읽어 리스트에 저장
+        all_data = []
         with open(file_path, 'r', encoding='utf-8') as f:
             for line in f:
-                data = json.loads(line)
-                # 챔피언 이름을 키로, 데이터를 값으로 저장
-                champion_dict[data['champion']] = data
-                
-                # 별칭(alias_of)이 있는 경우, 원본 데이터를 참조하도록 추가
-                if 'alias_of' in data and data['alias_of'] in champion_dict:
-                    champion_dict[data['champion']] = champion_dict[data['alias_of']]
-                    
+                if line.strip():
+                    all_data.append(json.loads(line))
+
+        # 2. 원본 챔피언 데이터를 먼저 딕셔너리에 추가
+        champion_dict = {
+            data['champion']: data 
+            for data in all_data if 'alias_of' not in data
+        }
+
+        # 3. 별칭(aliases)과 별명(alias_of)을 딕셔너리에 추가
+        for data in all_data:
+            # 'alias_of'가 있는 경우, 원본 챔피언 데이터를 참조하여 추가
+            if 'alias_of' in data and data['alias_of'] in champion_dict:
+                champion_dict[data['champion']] = champion_dict[data['alias_of']]
+            # 'aliases' 필드가 있는 경우, 각 별칭을 키로 하여 원본 데이터 추가
+            elif 'aliases' in data and data.get('aliases'):
+                original_data = champion_dict[data['champion']]
+                for alias in data['aliases']:
+                    champion_dict[alias] = original_data
+        
+        return champion_dict
+
     except (FileNotFoundError, json.JSONDecodeError) as e:
         st.error(f"오류: '{file_path}' 파일을 읽을 수 없습니다. ({e})")
-        return {} # 빈 딕셔너리 반환
-    return champion_dict
+        return {}
 
 def format_hard_counters(counters):
     """하드 카운터 목록의 형식을 지정합니다."""
@@ -49,9 +61,14 @@ def format_general_counters(counters):
         return "정보 없음"
     return ", ".join([f"**{counter}**" for counter in counters])
 
+
+
+
+
+
 def main():
     """Streamlit 웹 앱의 메인 함수입니다."""
-    st.title("👑 LOL 챔피언 카운터 챗봇 👑")
+    st.title("📖 롤벤토리")
 
     # 데이터 로드 (딕셔너리)
     champion_data_store = load_champion_data('champ.jsonl')
