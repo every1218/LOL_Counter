@@ -6,6 +6,17 @@ from langchain_core.output_parsers import StrOutputParser
 from dotenv import load_dotenv
 load_dotenv()
 
+st.set_page_config(
+    page_title="롤벤토리", 
+    page_icon="📖",
+    menu_items={
+        'Get Help': None,       # 'Get Help' 링크 숨기기
+        'Report a bug': None,   # 'Report a bug' 링크 숨기기 (이게 깃허브 이슈로 연결됨!)
+        'About': "# 📖 롤벤토리 \n롤 챔피언 카운터 정보 챗봇입니다." # 'About' 내용 커스텀
+    }
+)
+
+
 # LLM 초기화
 try:
     llm = ChatOpenAI(model="gpt-4.1-nano", temperature=0)
@@ -62,10 +73,6 @@ def format_general_counters(counters):
     return ", ".join([f"**{counter}**" for counter in counters])
 
 
-
-
-
-
 def main():
     """Streamlit 웹 앱의 메인 함수입니다."""
     st.title("📖 롤벤토리")
@@ -104,7 +111,8 @@ def main():
                 prompt = ChatPromptTemplate.from_messages(
     [
         ("system", "You are a formatting assistant. Your **sole purpose** is to format provided text precisely as given. **You MUST NOT, under any circumstances, summarize, modify, analyze, or rewrite the text.** You must output the text verbatim in the requested format."),
-        ("user", """[출력 형식]
+        ("user", """
+         
 ### 💀 하드 카운터
 {hard_counters}
 

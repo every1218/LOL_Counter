@@ -12,3 +12,8 @@
 
 # 기본 텍스트 색상
 #textColor="#FAFAFA" # 밝은 흰색
+
+
+[browser]
+gatherUsageStats = true
+# 이 설정을 'True'로 유지하면 이모지 모양의 "Made with Streamlit" 워터마크만 표시돼. Github 아이콘이 없어져
