@@ -102,22 +102,21 @@ def main():
 
                 # ChatPromptTemplate을 사용하여 메시지 목록 생성
                 prompt = ChatPromptTemplate.from_messages(
-                    [
-                        ("system", "You are a helpful assistant who is an expert on the game League of Legends."),
-                        ("user", """너는 리그 오브 레전드 전문가야. 아래 [데이터]를 참고해서 다음 [출력 형식]에 맞춰 답변해줘.
-
-[출력 형식]
+    [
+        ("system", "You are a formatting assistant. Your **sole purpose** is to format provided text precisely as given. **You MUST NOT, under any circumstances, summarize, modify, analyze, or rewrite the text.** You must output the text verbatim in the requested format."),
+        ("user", """[출력 형식]
 ### 💀 하드 카운터
 {hard_counters}
 
 ---
 
 ### 🔥 일반 카운터
-{general_counters}                 
+{general_counters}
 """)
-                    ]
-                )
+    ]
+)
 
+                # 입력 데이터 준비
                 input_data = {
                     'champion_name': found_data['champion'],
                     'hard_counters': hard_counters_str, # "정보 없음" 처리는 포맷 함수가 하도록 수정
