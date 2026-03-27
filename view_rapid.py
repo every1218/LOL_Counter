@@ -61,11 +61,12 @@ def main():
         st.warning("챔피언 데이터가 없습니다. 'champ.jsonl' 파일을 확인해주세요.")
         return
 
-    # 사용자 입력
-    champion_name_query = st.text_input("카운터 정보를 알고 싶은 챔피언 이름을 입력하세요:", "")
+    # 사용자 입력 (엔터키 또는 버튼 클릭 모두 동작)
+    with st.form("search_form"):
+        champion_name_query = st.text_input("카운터 정보를 알고 싶은 챔피언 이름을 입력하세요:", "")
+        submitted = st.form_submit_button("조회하기")
 
-    # ⭐️ '분석하기' 버튼 클릭 시 (LLM 체크 삭제)
-    if st.button("조회하기"):
+    if submitted:
         if champion_name_query:
             
             # ⭐️ 딕셔너리에서 데이터 조회 (반복문 대신 .get() 사용)
@@ -84,14 +85,14 @@ def main():
 
                 # 2. ⭐️ LLM 호출 대신, f-string으로 마크다운 텍스트 직접 생성
                 output_markdown = f"""
-                ### 💀 하드 카운터
-                {hard_counters_str}
+### 💀 하드 카운터
+{hard_counters_str}
 
-                ---
+---
 
-                ### 🔥 일반 카운터
-                {general_counters_str}
-                """
+### 🔥 일반 카운터
+{general_counters_str}
+"""
                 
                 # 3. ⭐️ LLM 관련 코드 (Prompt, chain, input_data) 모두 삭제
 
