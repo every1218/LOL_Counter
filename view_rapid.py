@@ -25,10 +25,10 @@ def load_champion_data(file_path):
                 # 챔피언 이름을 키로, 데이터를 값으로 저장
                 champion_dict[data['champion']] = data
                 
-                # ⭐️ 만약 'alias_of' 필드가 있다면, 별칭도 키로 추가
-                if 'alias_of' in data and data['alias_of'] in champion_dict:
-                    # 원본 데이터를 별칭 키에 연결
-                    champion_dict[data['champion']] = champion_dict[data['alias_of']]
+                # ⭐️ 'aliases' 배열의 각 별칭도 같은 데이터를 가리키도록 키로 추가
+                for alias in data.get('aliases', []):
+                    if alias:
+                        champion_dict[alias] = data
                     
     except (FileNotFoundError, json.JSONDecodeError) as e:
         st.error(f"오류: '{file_path}' 파일을 읽을 수 없습니다. ({e})")
@@ -49,6 +49,26 @@ def format_general_counters(counters):
     if not isinstance(counters, list) or not counters:
         return "정보 없음"
     return ", ".join(counters)
+
+def render_combo_counters(combos):
+    """조합 카운터를 시각적으로 렌더링합니다. (& 기준으로 원딜/서포터 구분)"""
+    if not isinstance(combos, list) or not combos:
+        return
+
+    st.markdown("### 🔗 조합 카운터")
+    for combo in combos:
+        parts = combo.split("&")
+        if len(parts) == 2:
+            left = parts[0].strip()   # & 앞: 원딜
+            right = parts[1].strip()  # & 뒤: 서포터
+            st.markdown(
+                f"<span style='color:#7ecfff'>🗡️ **{left}**</span>"
+                f"<span style='color:#888'> + </span>"
+                f"<span style='color:#c9a0ff'>🛡️ **{right}**</span>",
+                unsafe_allow_html=True
+            )
+        else:
+            st.markdown(f"- {combo}")
 
 def main():
     """Streamlit 웹 앱의 메인 함수입니다."""
@@ -82,24 +102,26 @@ def main():
                 # 1. 데이터 포맷팅
                 hard_counters_str = format_hard_counters(found_data.get('hard_counters'))
                 general_counters_str = format_general_counters(found_data.get('general_counters'))
+                combo_counters = found_data.get('combo_counters', [])
 
-                # 2. ⭐️ LLM 호출 대신, f-string으로 마크다운 텍스트 직접 생성
-                output_markdown = f"""
-### 💀 하드 카운터
-{hard_counters_str}
-
----
-
-### 🔥 일반 카운터
-{general_counters_str}
-"""
-                
-                # 3. ⭐️ LLM 관련 코드 (Prompt, chain, input_data) 모두 삭제
-
-                # 4. ⭐️ st.write_stream 대신 st.markdown으로 결과 한 번에 출력
+                # 2. 결과 출력
                 st.markdown("---")
                 st.subheader(f"📜 {found_data['champion']} 카운터 조회 결과")
-                st.markdown(output_markdown)
+
+                # 조합 카운터 (있을 때만 표시)
+                if combo_counters:
+                    render_combo_counters(combo_counters)
+                    st.markdown("---")
+
+                # 하드 카운터
+                st.markdown("### 💀 하드 카운터")
+                st.markdown(hard_counters_str)
+
+                st.markdown("---")
+
+                # 일반 카운터
+                st.markdown("### 🔥 일반 카운터")
+                st.markdown(general_counters_str)
                 
         else:
             st.warning("챔피언 이름을 입력해주세요.")
